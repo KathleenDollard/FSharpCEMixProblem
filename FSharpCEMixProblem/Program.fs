@@ -42,23 +42,19 @@ type CE() =
 
 module Test =
     let x =
-        CE() {
-            Name "Fred"
-        }
+        CE() { Name "Fred" }
 
     let y = 
-        CE() {
-            42
-        }
+        CE() { 42 }
 
     let z =
-        CE() {
-            Member 42
-        }
+        CE() { Member 42 }
 
     let z2 =
         CE() {
-            Members 42
+            Members 
+                42 
+                43
         }
 
     let failure = 
@@ -66,5 +62,8 @@ module Test =
             Name "Fred"
             42
         }
+
+    let empty = 
+        CE() {}
 
     
