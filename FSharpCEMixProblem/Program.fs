@@ -3,7 +3,7 @@
     type M<'T, 'Vars> =
         { Name: string option
           IsMember: bool option
-          IsMember2: bool
+          IsMember2: bool  // confirming that shape of the container is not restricted, just need clear default the CE understands
           Members: 'T list
           Variables: 'Vars }
 
@@ -124,6 +124,8 @@
             ce {
                 Name "Fred" 
                 IsMember true
+                IsMember true
+                IsMember2 true // Note, I can call this twice without compiler error, but not Name in z5
                 IsMember2 true
                 }
 
@@ -153,7 +155,7 @@
             ce {
                 Name "a"
                 Name "b"
-                42
+                //42 // removing this line results in compiler error
             }
 
         let z6 : M<double> = 
