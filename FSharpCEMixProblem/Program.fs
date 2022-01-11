@@ -3,6 +3,7 @@
     type M<'T, 'Vars> =
         { Name: string option
           IsMember: bool option
+          IsMember2: bool
           Members: 'T list
           Variables: 'Vars }
 
@@ -13,6 +14,7 @@
         member _.Zero() : M<'T> =
             { Name = None
               IsMember = None
+              IsMember2 = false
               Members = [] 
               Variables = () }
 
@@ -25,8 +27,13 @@
                 match model2.IsMember with 
                 | None -> model1.IsMember
                 | res -> res
+            let newIsMember2 =
+                match model2.IsMember2 with 
+                | true -> true
+                | res -> res
             { Name = newName
               IsMember = newIsMember
+              IsMember2 = newIsMember2
               Members = List.append model1.Members model2.Members 
               Variables = () }
 
@@ -35,6 +42,7 @@
         member _.Run(model: M<'T, 'Vars>) : M<'T> =
             { Name = model.Name
               IsMember = model.IsMember
+              IsMember2 = model.IsMember2
               Members = model.Members
               Variables = () }
 
@@ -52,6 +60,7 @@
         member _.Yield (item: 'T) : M<'T> = 
             { Name = None
               IsMember = None
+              IsMember2 = false
               Members = [ item ]
               Variables = () }
 
@@ -66,8 +75,13 @@
                 match model2.IsMember with 
                 | None -> model1.IsMember
                 | res -> res
+            let newIsMember2 =
+                match model2.IsMember2 with 
+                | true -> true
+                | res -> res
             { Name = newName
               IsMember = newIsMember
+              IsMember2 = newIsMember2
               Members = model1.Members @ model2.Members
               Variables = model2.Variables }
 
@@ -75,6 +89,7 @@
         member _.Return (varspace: 'Vars) : M<'T, 'Vars> = 
             { Name = None
               IsMember = None
+              IsMember2 = false
               Members = [ ]
               Variables = varspace }
 
@@ -83,8 +98,13 @@
             { model with Name = Some (name model.Variables) }
 
         [<CustomOperation("IsMember", MaintainsVariableSpaceUsingBind = true)>]
-        member _.setName (model: M<'T, 'Vars>, [<ProjectionParameter>] isMember: ('Vars -> bool)) : M<'T, 'Vars>  =
+        member _.setIsMember (model: M<'T, 'Vars>, [<ProjectionParameter>] isMember: ('Vars -> bool)) : M<'T, 'Vars>  =
             { model with IsMember = Some (isMember model.Variables) }
+
+        // We can skip 
+        [<CustomOperation("IsMember2", MaintainsVariableSpaceUsingBind = true)>]
+        member _.setIsMember2 (model: M<'T, 'Vars>, [<ProjectionParameter>] isMember: ('Vars -> bool)) : M<'T, 'Vars>  =
+            { model with IsMember2 = isMember model.Variables }
 
         [<CustomOperation("Member", MaintainsVariableSpaceUsingBind = true)>]
         member _.addMember (model: M<'T, 'Vars>, [<ProjectionParameter>] item: ('Vars -> 'T))  : M<'T, 'Vars>  =
@@ -104,6 +124,7 @@
             ce {
                 Name "Fred" 
                 IsMember true
+                IsMember2 true
                 }
 
         let y = 
