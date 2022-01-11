@@ -151,7 +151,7 @@
                 Member 42
             }
 
-        let z5 = 
+        let z5 : M<double> = 
             ce {
                 Name "a"
                 Name "b"
