@@ -2,6 +2,7 @@
 
     type M<'T, 'Vars> =
         { Name: string option
+          IsMember: bool option
           Members: 'T list
           Variables: 'Vars }
 
@@ -11,6 +12,7 @@
             
         member _.Zero() : M<'T> =
             { Name = None
+              IsMember = None
               Members = [] 
               Variables = () }
 
@@ -19,7 +21,12 @@
                 match model2.Name with
                 | None -> model1.Name
                 | res -> res
+            let newIsMember =
+                match model2.IsMember with 
+                | None -> model1.IsMember
+                | res -> res
             { Name = newName
+              IsMember = newIsMember
               Members = List.append model1.Members model2.Members 
               Variables = () }
 
@@ -27,6 +34,7 @@
 
         member _.Run(model: M<'T, 'Vars>) : M<'T> =
             { Name = model.Name
+              IsMember = model.IsMember
               Members = model.Members
               Variables = () }
 
@@ -43,6 +51,7 @@
 
         member _.Yield (item: 'T) : M<'T> = 
             { Name = None
+              IsMember = None
               Members = [ item ]
               Variables = () }
 
@@ -53,19 +62,29 @@
                 match model2.Name with
                 | None -> model1.Name
                 | res -> res
+            let newIsMember =
+                match model2.IsMember with 
+                | None -> model1.IsMember
+                | res -> res
             { Name = newName
+              IsMember = newIsMember
               Members = model1.Members @ model2.Members
               Variables = model2.Variables }
 
         // Only for packing/unpacking the implicit variable space
         member _.Return (varspace: 'Vars) : M<'T, 'Vars> = 
             { Name = None
+              IsMember = None
               Members = [ ]
               Variables = varspace }
 
         [<CustomOperation("Name", MaintainsVariableSpaceUsingBind = true)>]
         member _.setName (model: M<'T, 'Vars>, [<ProjectionParameter>] name: ('Vars -> string)) : M<'T, 'Vars>  =
             { model with Name = Some (name model.Variables) }
+
+        [<CustomOperation("IsMember", MaintainsVariableSpaceUsingBind = true)>]
+        member _.setName (model: M<'T, 'Vars>, [<ProjectionParameter>] isMember: ('Vars -> bool)) : M<'T, 'Vars>  =
+            { model with IsMember = Some (isMember model.Variables) }
 
         [<CustomOperation("Member", MaintainsVariableSpaceUsingBind = true)>]
         member _.addMember (model: M<'T, 'Vars>, [<ProjectionParameter>] item: ('Vars -> 'T))  : M<'T, 'Vars>  =
@@ -80,6 +99,12 @@
     module Test =
         let x : M<double> =
             ce { Name "Fred" }
+
+        let x2 : M<double> =
+            ce {
+                Name "Fred" 
+                IsMember true
+                }
 
         let y = 
             ce { 42 }
@@ -140,6 +165,8 @@
                     43.1 + x
                 ]
             }
-
         //let empty = 
         //    ce { }
+        
+System.Console.WriteLine("")
+
