@@ -107,6 +107,7 @@
             ce {
                 Name "a"
                 Name "b"
+                42
             }
 
         let z6 : M<double> = 
