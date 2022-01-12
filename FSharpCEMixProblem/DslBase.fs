@@ -1,6 +1,6 @@
 ﻿namespace CEBase 
 
-    type membership<'TItem> = 
+    type membershipTest<'TItem> = 
         { Name: string option
           IsMember: bool option
           IsMember2: bool  // confirming that shape of the container is not restricted, just need clear default the CE understands
@@ -22,14 +22,14 @@
             { Model = this.Empty() 
               Variables = () }
 
-        member this.Combine (model1: M<'T, unit>, model2: M<'T, unit>) : M<'T, unit> =
-            { Model = this.CombineModels model1.Model model2.Model
+        member this.Combine (varModel1: M<'T, unit>, varModel2: M<'T, unit>) : M<'T, unit> =
+            { Model = this.CombineModels varModel1.Model varModel2.Model
               Variables = () }
 
         member _.Delay(f) : M<'T, 'Vars> = f()
 
-        member this.Run(model: M<'T, 'Vars>) : M<'T, unit> =
-            { Model = this.CombineModels model.Model (this.Empty())
+        member this.Run(varModel: M<'T, 'Vars>) : M<'T, unit> =
+            { Model = this.CombineModels varModel.Model (this.Empty())
               Variables = () }
 
         member this.For(methods, f) :M<'T, unit> = 
@@ -48,23 +48,23 @@
               Variables = () }
 
         // Only for packing/unpacking the implicit variable space
-        member this.Bind (model1: M<'T, 'Vars>, f: ('Vars -> M<'T, unit>)) : M<'T, unit>  =
-            let model2 = f model1.Variables
-            let combined = this.CombineModels model1.Model model2.Model
+        member this.Bind (varModel1: M<'T, 'Vars>, f: ('Vars -> M<'T, unit>)) : M<'T, unit>  =
+            let varModel2 = f varModel1.Variables
+            let combined = this.CombineModels varModel1.Model varModel2.Model
             { Model = combined
-              Variables = model2.Variables }
+              Variables = varModel2.Variables }
 
         // Only for packing/unpacking the implicit variable space
         member this.Return (varspace: 'Vars) : M<'T, 'Vars> = 
             { Model = this.Empty() 
               Variables = varspace }
 
-        member _.SetModel (model: M<'T, 'Vars>) (newModel: 'T) =
+        member _.SetModel (varModel: M<'T, 'Vars>) (newModel: 'T) =
             { Model = newModel
-              Variables = model.Variables }            
+              Variables = varModel.Variables }            
 
     type CE<'TItem>() =
-        inherit DslBase<membership<'TItem>, 'TItem>()
+        inherit DslBase<membershipTest<'TItem>, 'TItem>()
 
         override _.Empty() =
             { Name = None

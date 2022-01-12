@@ -5,11 +5,11 @@ module CEs =
 
     module Test =
         let ce = CE()
-        let x : M<membership<double>> =
+        let x : M<membershipTest<double>> =
             ce { Name "Fred" }
 
         // TODO: IsMember2 is not working in the following
-        let x2 : M<membership<double>> =
+        let x2 : M<membershipTest<double>> =
             ce {
                 Name "Fred" 
                 IsMember true
@@ -18,13 +18,13 @@ module CEs =
                 IsMember2 true
                 }
 
-        let x3 : M<membership<double>> =
+        let x3 : M<membershipTest<double>> =
             ce {
                 Name "Fred" 
                 IsMember2 true
                 }
 
-        let x4 : M<membership<double>> =
+        let x4 : M<membershipTest<double>> =
             ce {
                 IsMember2 true
                 }
@@ -52,28 +52,28 @@ module CEs =
                 Member 42
             }
 
-        let z5 : M<membership<double>> = 
+        let z5 : M<membershipTest<double>> = 
             ce {
                 Name "a"
                 Name "b"
                 //42 // removing this line results in compiler error
             }
 
-        let z6 : M<membership<double>> = 
+        let z6 : M<membershipTest<double>> = 
             ce {
                 let x = 1
                 Name "a"
                 Member 4.0
             }
 
-        let z7 : M<membership<double>> = 
+        let z7 : M<membershipTest<double>> = 
             ce {
                 let x = "a"
                 Name (x + "b")
                 Member 4.0
             }
 
-        let z8 : M<membership<double>> = 
+        let z8 : M<membershipTest<double>> = 
             ce {
                 let x1 = 1.0
                 let y2 = 2.0
