@@ -6,8 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="CEsDirect.fs" />
-    <Compile Include="CEBase.fs" />
+    <Compile Include="CEsOriginal.fs" />
+    <Compile Include="DslBase.fs" />
+    <Compile Include="Membership.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

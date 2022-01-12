@@ -12,14 +12,67 @@
 
     type M<'T> = M<'T, unit>
 
-    type DslBase() =
-        let empty() = 
-             { Name = None
-               IsMember = None
-               IsMember2 = false
-               Members = [] }
+    [<AbstractClass>]
+    type DslBase<'T, 'TItem> () =
+        abstract member Empty: unit -> 'T
+        abstract member CombineModels: 'T -> 'T -> 'T
+        abstract member NewMember: 'TItem -> 'T
 
-        let combine model1 model2 =
+        member this.Zero() : M<'T, unit> = 
+            { Model = this.Empty() 
+              Variables = () }
+
+        member this.Combine (model1: M<'T, unit>, model2: M<'T, unit>) : M<'T, unit> =
+            { Model = this.CombineModels model1.Model model2.Model
+              Variables = () }
+
+        member _.Delay(f) : M<'T, 'Vars> = f()
+
+        member this.Run(model: M<'T, 'Vars>) : M<'T, unit> =
+            { Model = this.CombineModels model.Model (this.Empty())
+              Variables = () }
+
+        member this.For(methods, f) :M<'T, unit> = 
+            let methodList = Seq.toList methods
+            match methodList with 
+            | [] -> this.Zero()
+            | [x] -> f(x)
+            | head::tail ->
+                let mutable headResult = f(head)
+                for x in tail do 
+                    headResult <- this.Combine(headResult, f(x))
+                headResult
+
+        member this.Yield (item: 'TItem) : M<'T, unit> = 
+            { Model = this.NewMember item
+              Variables = () }
+
+        // Only for packing/unpacking the implicit variable space
+        member this.Bind (model1: M<'T, 'Vars>, f: ('Vars -> M<'T, unit>)) : M<'T, unit>  =
+            let model2 = f model1.Variables
+            let combined = this.CombineModels model1.Model model2.Model
+            { Model = combined
+              Variables = model2.Variables }
+
+        // Only for packing/unpacking the implicit variable space
+        member this.Return (varspace: 'Vars) : M<'T, 'Vars> = 
+            { Model = this.Empty() 
+              Variables = varspace }
+
+        member _.SetModel (model: M<'T, 'Vars>) (newModel: 'T) =
+            { Model = newModel
+              Variables = model.Variables }            
+
+    type CE<'TItem>() =
+        inherit DslBase<membership<'TItem>, 'TItem>()
+
+        override _.Empty() =
+            { Name = None
+              IsMember = None
+              IsMember2 = false
+              Members = [] }
+
+        override _.CombineModels model1 model2 =
             let newName = 
                 match model2.Name with
                 | None -> model1.Name
@@ -37,53 +90,8 @@
               IsMember2 = newIsMember2
               Members =  model1.Members @ model2.Members }
 
-        member _.Zero() : M<'T, unit> = 
-            { Model = empty() 
-              Variables = () }
-
-        member _.Combine (model1: M<'T, unit>, model2: M<'T, unit>) : M<'T, unit> =
-            { Model = combine model1.Model model2.Model
-              Variables = () }
-
-        member _.Delay(f) : M<'T, 'Vars> = f()
-
-        member _.Run(model: M<'T, 'Vars>) : M<'T, unit> =
-            { Model = combine model.Model (empty())
-              Variables = () }
-
-        member this.For(methods, f) :M<'T, unit> = 
-            let methodList = Seq.toList methods
-            match methodList with 
-            | [] -> this.Zero()
-            | [x] -> f(x)
-            | head::tail ->
-                let mutable headResult = f(head)
-                for x in tail do 
-                    headResult <- this.Combine(headResult, f(x))
-                headResult
-
-        member _.Yield (item: 'TItem) : M<'T, unit> = 
-            { Model = { empty() with Members = [ item ] }
-              Variables = () }
-
-        // Only for packing/unpacking the implicit variable space
-        member _.Bind (model1: M<'T, 'Vars>, f: ('Vars -> M<'T, unit>)) : M<'T, unit>  =
-            let model2 = f model1.Variables
-            let combined = combine model1.Model model2.Model
-            { Model = combine model1.Model model2.Model
-              Variables = model2.Variables }
-
-        // Only for packing/unpacking the implicit variable space
-        member _.Return (varspace: 'Vars) : M<'T, 'Vars> = 
-            { Model = empty() 
-              Variables = varspace }
-
-        member _.SetModel (model: M<'T, 'Vars>) (newModel: 'T) =
-            { Model = newModel
-              Variables = model.Variables }            
-
-    type CE() =
-        inherit DslBase()
+        override this.NewMember (item: 'TItem) =
+            { this.Empty() with Members = [ item ] }
 
         [<CustomOperation("Name", MaintainsVariableSpaceUsingBind = true)>]
         member this.setName (model: M<'T, 'Vars>, [<ProjectionParameter>] name: ('Vars -> string)) : M<'T, 'Vars>  =

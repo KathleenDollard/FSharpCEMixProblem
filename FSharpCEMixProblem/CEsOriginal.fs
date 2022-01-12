@@ -1,4 +1,4 @@
-﻿namespace CEsDirect
+﻿namespace CEsOriginal
 
     type M<'T, 'Vars> =
         { Name: string option

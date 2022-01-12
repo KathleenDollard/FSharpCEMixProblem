@@ -3,12 +3,12 @@
 
 module CEs =
 
-    let ce = CE()
     module Test =
+        let ce = CE()
         let x : M<membership<double>> =
             ce { Name "Fred" }
 
-        // IsMember2 is not working in the following
+        // TODO: IsMember2 is not working in the following
         let x2 : M<membership<double>> =
             ce {
                 Name "Fred" 
@@ -92,5 +92,5 @@ module CEs =
         //let empty = 
         //    ce { }
         
-System.Console.WriteLine("")
+        System.Console.WriteLine("")
 
