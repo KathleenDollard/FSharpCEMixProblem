@@ -1,4 +1,8 @@
-﻿open CEBase
+﻿namespace CEMix
+
+open CEBase
+open Test
+open System
 
 
 module CEs =
@@ -93,4 +97,15 @@ module CEs =
         //    ce { }
         
         System.Console.WriteLine("")
+
+    let membership = Member()
+    let newMember = membership {
+        Name "Fred"
+        Name2 "Bill"
+        Name2 "George"
+        IsMember
+        PhoneNumber "205 555 1212"
+        PhoneNumber "345 555 1212"
+    }
+    Console.WriteLine("Cool")
 

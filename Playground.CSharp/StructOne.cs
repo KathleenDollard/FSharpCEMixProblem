@@ -8,10 +8,10 @@ namespace Playground.CSharp
 {
 
 
-    struct S0
-    {
-        public int X { get; set; } = 5;
-    }
+    //struct S0
+    //{
+    //    public int X { get; set; } = 5;
+    //}
 
     struct S1
     {
